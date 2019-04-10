@@ -1,0 +1,5 @@
+<root>
+    <item name='java.lang.Comparable'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+</root>
