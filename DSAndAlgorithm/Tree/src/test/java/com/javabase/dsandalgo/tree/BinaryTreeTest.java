@@ -1,10 +1,11 @@
 package com.javabase.dsandalgo.tree;
 
+import com.javabase.dsandalgo.tree.binary.search.BinarySearchTree;
+import com.javabase.dsandalgo.tree.binary.search.Person;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class BinaryTreeTest {

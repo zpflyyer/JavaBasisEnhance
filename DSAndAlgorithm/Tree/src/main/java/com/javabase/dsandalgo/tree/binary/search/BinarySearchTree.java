@@ -1,4 +1,4 @@
-package com.javabase.dsandalgo.tree;
+package com.javabase.dsandalgo.tree.binary.search;
 
 import com.sun.istack.internal.NotNull;
 import lombok.*;
