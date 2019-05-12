@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public abstract class AbstractExecutorService1 implements ExecutorService {
-    protected <T> RunnableFuture newTaskFor(Callable<T> callable){
-        return new FutureTask(callable);
+    protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable){
+        return new FutureTask<>(callable);
     }
 
     @Override
@@ -28,8 +28,7 @@ public abstract class AbstractExecutorService1 implements ExecutorService {
                     try {
                         future.get();
                     }
-                    catch (CancellationException ignored){}
-                    catch (ExecutionException ignored){}
+                    catch (CancellationException | ExecutionException ignored){}
                 }
             }
             isDone = true;
@@ -58,7 +57,7 @@ public abstract class AbstractExecutorService1 implements ExecutorService {
             final long deadLine = System.nanoTime() + nanos;
 
             for (int i = 0; i < size; i++) {//这里要修改nanos，因此不能使用lambda表达式
-                if ((nanos = deadLine - System.nanoTime()) <= 0L)
+                if (deadLine - System.nanoTime() <= 0L)
                     return futures;
                 execute((Runnable) futures.get(i));
             }
@@ -68,8 +67,7 @@ public abstract class AbstractExecutorService1 implements ExecutorService {
                 Future<T> f = futures.get(i);
                 try {
                     f.get(nanos, unit);
-                } catch (CancellationException ignored) {
-                } catch (ExecutionException ignored){
+                } catch (CancellationException | ExecutionException ignored) {
                 } catch (TimeoutException e){
                     return futures;
                 }
