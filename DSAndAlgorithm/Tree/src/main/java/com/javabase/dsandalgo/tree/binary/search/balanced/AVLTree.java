@@ -16,7 +16,7 @@ public class AVLTree<T extends Comparable<? super T>> extends BinarySearchTree<T
     }
 
     @Override
-    protected AVLTreeNode<T> afterInsert(BinaryNode<T> root) {
+    protected AVLTreeNode<T> afterInsert(BinaryNode<T> root,T toBeInserted) {
         return reBalance((AVLTreeNode<T>) root);//再平衡子树
     }
 
