@@ -51,7 +51,7 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
             RedBlackTreeNode<T> z = this.recentInsertedNode;
             //如果z的父亲p是红色，说明z的的祖父g是黑色，且z的祖父g高度<=根的高度
             //如果z的父亲p是黑色，那么要么是最后一次操作是旋转，并且再平衡已经完，要么是最后一次操作里，根是g且应用了情形1，导致根被涂成红色，
-            //此时需要循环后的重新上色的操作
+            //此时需要循环后的重新上色的操，这是导致整棵树bh+1的唯一情形
             while (z.parent.color == COLOR.RED) {
                 RedBlackTreeNode<T> p = z.parent;
                 RedBlackTreeNode<T> g = p.parent;
