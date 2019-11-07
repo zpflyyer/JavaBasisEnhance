@@ -3,11 +3,12 @@ package com.javabase.dsandalgo.tree.binary.search.balanced;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.javabase.dsandalgo.tree.binary.search.balanced.EasyRedBlackTree.NIL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class EasyRedBlackTreeTest {
     private EasyRedBlackTree<Integer> rbTree = new EasyRedBlackTree<>();
@@ -38,5 +39,17 @@ public class EasyRedBlackTreeTest {
         assertEquals(rbTree.findSuccessor(rbTree.search(9)), NIL);
         assertEquals((int) rbTree.findSuccessor(rbTree.search(8)).getElement(), 9);
         assertEquals((int) rbTree.findSuccessor(rbTree.search(5)).getElement(), 6);
+
+        Set<Integer> removedInts = new HashSet<>();
+        integerList.forEach(i -> {
+            EasyRedBlackTree.RedBlackTreeNode<Integer> node = rbTree.search(i);
+            if (removedInts.contains(i)){
+                assertNull(node.getElement());
+            } else {
+                assertEquals(node.getElement(), i);
+                rbTree.remove(node);
+                removedInts.add(i);
+            }
+        });
     }
 }

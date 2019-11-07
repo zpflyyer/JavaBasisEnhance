@@ -7,8 +7,10 @@ import lombok.Setter;
 @SuppressWarnings("unchecked")
 public class EasyRedBlackTree<T extends Comparable<? super T>> {
 
+    public static final String RED = "red";
+    public static final String BLACK = "black";
     // 红黑树里所有的空指针全部使用NIL代替
-    public final static RedBlackTreeNode NIL = new RedBlackTreeNode<>(null, null, null, null, COLOR.BLACK);
+    public final static RedBlackTreeNode NIL = new RedBlackTreeNode<>(null, null, null, null, BLACK);
 
     //红黑树初始状态:一个黑色的NIL节点
     private RedBlackTreeNode<T> root = NIL;
@@ -20,7 +22,7 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
      */
     private RedBlackTreeNode<T> newNodeFor(T t, RedBlackTreeNode<T> parent) {
         // 强制新创建出来的节点颜色为红色，红黑树的再平衡交给专门的re-balance函数去做
-        return new RedBlackTreeNode<>(t, NIL, NIL, parent, COLOR.RED);
+        return new RedBlackTreeNode<>(t, NIL, NIL, parent, RED);
     }
 
     public void insert(T toBeInserted) {
@@ -45,21 +47,116 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
         return current;
     }
 
-    // re-balance function
+    public void remove(RedBlackTreeNode<T> toBeRemovedNode) {
+        if (toBeRemovedNode != NIL) {
+            RedBlackTreeNode<T> x;
+            String y_original_color = toBeRemovedNode.color;
+            if (toBeRemovedNode.left == NIL) {
+                x = toBeRemovedNode.right;
+                this.transplant(toBeRemovedNode, x);
+            } else if (toBeRemovedNode.right == NIL) {
+                x = toBeRemovedNode.left;
+                this.transplant(toBeRemovedNode, x);
+            } else {
+                RedBlackTreeNode<T> successor = this.findSuccessor(toBeRemovedNode);
+                y_original_color = successor.color;
+                x = successor.right;
+                toBeRemovedNode.element = successor.element;
+                this.transplant(successor, successor.right);
+            }
+            if (y_original_color.equals(BLACK)){
+                this.afterRemove(x);
+            }
+        }
+    }
+
+    // x is dual black node and w is his brother(which is not NIL)
+    public void afterRemove(RedBlackTreeNode<T> x){
+        while (x.color.equals(BLACK) && x != this.root){
+            if (x == x.parent.left){
+                RedBlackTreeNode<T> w = x.parent.right;
+                if (w.color.equals(RED)){
+                    w.color = BLACK;
+                    x.parent.color = RED;
+                    leftRotate(x.parent);
+                    w = x.parent.right;
+                }
+                if (w.left.color.equals(BLACK) && w.right.color.equals(BLACK)){
+                    w.color = RED;
+                    //如果是从情形1进入的情形2，则x.parent.color = red，即新的x是红色节点，退出循环
+                    x = x.parent;
+                }
+                else {
+                    if (w.right.color.equals(BLACK)){
+                        w.color = RED;
+                        w.left.color = BLACK;
+                        this.rightRotate(w);
+                        w = x.parent.right;
+                    }
+                    w.color = x.parent.color;
+                    x.parent.color = BLACK;
+                    w.right.color = BLACK;
+                    this.leftRotate(x.parent);
+                    //情形4终结时，x指向黑色节点，故而需要手动结束循环
+                    break;
+                }
+            } else {
+                RedBlackTreeNode<T> w = x.parent.left;
+                if (w.color.equals(RED)){
+                    w.color = BLACK;
+                    x.parent.color = RED;
+                    rightRotate(x.parent);
+                    w = x.parent.left;
+                }
+                if (w.left.color.equals(BLACK) && w.right.color.equals(BLACK)) {
+                    w.color = RED;
+                    x = x.parent;
+                } else {
+                    if (w.left.color.equals(BLACK)) {
+                        w.color = RED;
+                        w.right.color = BLACK;
+                        this.leftRotate(w);
+                        w = x.parent.left;
+                    }
+                    w.color = x.parent.color;
+                    x.parent.color = BLACK;
+                    w.left.color = BLACK;
+                    this.rightRotate(x.parent);
+                    break;
+                }
+            }
+        }
+        // 去除红黑节点上的红色或者如果是根，整体高降低1即可
+        x.color = BLACK;
+    }
+
+    // replace old subtree whose root is oldRoot with new subTree whose root is newRoot
+    public void transplant(RedBlackTreeNode<T> oldRoot, RedBlackTreeNode<T> newRoot){
+        if (oldRoot.parent == NIL){
+            this.root = newRoot;
+        }
+        if (oldRoot.parent.left == oldRoot){
+            oldRoot.parent.left = newRoot;
+        } else {
+            oldRoot.parent.right = newRoot;
+        }
+        newRoot.parent = oldRoot.parent;
+    }
+
+  // re-balance function
     private void afterInsert() {
         if (!this.recentInsertedNode.equals(NIL)) {
             RedBlackTreeNode<T> z = this.recentInsertedNode;
             //如果z的父亲p是红色，说明z的的祖父g是黑色，且z的祖父g高度<=根的高度
-            //如果z的父亲p是黑色，那么要么是最后一次操作是旋转，并且再平衡已经完，要么是最后一次操作里，根是g且应用了情形1，导致根被涂成红色，
-            //此时需要循环后的重新上色的操，这是导致整棵树bh+1的唯一情形
-            while (z.parent.color == COLOR.RED) {
+            //如果z的父亲p是黑色，那么p有可能是NIL
+            while (z.parent.color.equals(RED)) {
                 RedBlackTreeNode<T> p = z.parent;
                 RedBlackTreeNode<T> g = p.parent;
                 if (g.left.equals(p)) {
-                    if (g.right.color == COLOR.RED) {
-                        p.color = COLOR.BLACK;
-                        g.right.color = COLOR.BLACK;
-                        g.color = COLOR.RED;
+                    if (g.right.color.equals(RED)) {
+                        p.color = BLACK;
+                        g.right.color = BLACK;
+                        g.color = RED;
                         z = g;
                     } else {
                         if (z == p.right) {
@@ -67,8 +164,8 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
                             p = g.left;
                             z = p.left;
                         }
-                        g.color = COLOR.RED;
-                        p.color = COLOR.BLACK;
+                        g.color = RED;
+                        p.color = BLACK;
                         this.rightRotate(g);
                         //结束时需要修复根节点的引用
                         if (p.parent == NIL) {
@@ -76,10 +173,10 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
                         }
                     }
                 } else {
-                    if (g.left.color == COLOR.RED) {
-                        p.color = COLOR.BLACK;
-                        g.left.color = COLOR.BLACK;
-                        g.color = COLOR.RED;
+                    if (g.left.color.equals(RED)) {
+                        p.color = BLACK;
+                        g.left.color = BLACK;
+                        g.color = RED;
                         z = g;
                     } else {
                         if (z == p.left) {
@@ -87,8 +184,8 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
                             p = g.right;
                             z = p.right;
                         }
-                        g.color = COLOR.RED;
-                        p.color = COLOR.BLACK;
+                        g.color = RED;
+                        p.color = BLACK;
                         this.leftRotate(g);
                         //结束时需要修复根节点的引用
                         if (p.parent == NIL) {
@@ -98,7 +195,7 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
                 }
             }
             // don't forget
-            this.root.color = COLOR.BLACK;
+            this.root.color = BLACK;
         }
     }
 
@@ -120,6 +217,9 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
         } else {
             g.right = z;
         }
+        if (z.parent == NIL) {
+            this.root = z;
+        }
     }
 
     private void rightRotate(RedBlackTreeNode<T> p) {
@@ -140,6 +240,9 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
             g.left = z;
         } else {
             g.right = z;
+        }
+        if (z.parent == NIL) {
+            this.root = z;
         }
     }
 
@@ -247,9 +350,9 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
         private RedBlackTreeNode<T> right;
         private RedBlackTreeNode<T> parent;
         @NonNull
-        private COLOR color;
+        private String color;
 
-        public RedBlackTreeNode(T element, RedBlackTreeNode<T> left, RedBlackTreeNode<T> right, RedBlackTreeNode<T> parent, COLOR color) {
+        public RedBlackTreeNode(T element, RedBlackTreeNode<T> left, RedBlackTreeNode<T> right, RedBlackTreeNode<T> parent, String color) {
             this.element = element;
             this.left = left;
             this.right = right;
@@ -268,13 +371,5 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
                 return false;
             }
         }
-    }
-
-    /**
-     * 颜色定义
-     */
-
-    public enum COLOR {
-        RED, BLACK
     }
 }
