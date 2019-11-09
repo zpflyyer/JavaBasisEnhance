@@ -47,6 +47,64 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
         return current;
     }
 
+    // re-balance function
+    private void afterInsert() {
+        if (!this.recentInsertedNode.equals(NIL)) {
+            RedBlackTreeNode<T> z = this.recentInsertedNode;
+            //如果z的父亲p是黑色，那么z直接插入该位置即可，只是注意当z成为根时，颜色需要调整
+            while (z.parent.color.equals(RED)) {
+                RedBlackTreeNode<T> p = z.parent;
+                RedBlackTreeNode<T> g = p.parent;
+                if (g.left.equals(p)) {
+                    // 四节点：Red(z)<==Red(parent)<==【Black(grand)】==>Red(uncle)，将黑色元素转化为上层节点的一个新插入有的红色元素
+                    // 这样问题就转化为g.parent所在的节点里插入了一个Red元素grand
+                    if (g.right.color.equals(RED)) {
+                        this.flipColor(g);
+                        z = g;
+                    }
+                    // 三节点：Red(z)<==Red(parent)<==【Black(grand)】==>【Black(uncle)】,将grand右旋，重新选择parent作为当前节点的黑节点
+                    else {
+                        if (z == p.right) {
+                            this.leftRotate(p);
+                            p = g.left;
+                            z = p.left;
+                        }
+                        g.color = RED;
+                        p.color = BLACK;
+                        this.rightRotate(g);
+                        //结束时需要修复根节点的引用
+                        if (p.parent == NIL) {
+                            this.root = p;
+                        }
+                    }
+                } else {
+                    if (g.left.color.equals(RED)) {
+                        p.color = BLACK;
+                        g.left.color = BLACK;
+                        g.color = RED;
+                        z = g;
+                    } else {
+                        if (z == p.left) {
+                            this.rightRotate(p);
+                            p = g.right;
+                            z = p.right;
+                        }
+                        g.color = RED;
+                        p.color = BLACK;
+                        this.leftRotate(g);
+                        //结束时需要修复根节点的引用
+                        if (p.parent == NIL) {
+                            this.root = p;
+                        }
+                    }
+                }
+            }
+            // 插入位置是根节点位置
+            // 或者，节点分裂一直上升，导致原来的根节点也被分裂了
+            this.root.color = BLACK;
+        }
+    }
+
     public void remove(RedBlackTreeNode<T> toBeRemovedNode) {
         if (toBeRemovedNode != NIL) {
             RedBlackTreeNode<T> x;
@@ -143,60 +201,10 @@ public class EasyRedBlackTree<T extends Comparable<? super T>> {
         newRoot.parent = oldRoot.parent;
     }
 
-  // re-balance function
-    private void afterInsert() {
-        if (!this.recentInsertedNode.equals(NIL)) {
-            RedBlackTreeNode<T> z = this.recentInsertedNode;
-            //如果z的父亲p是红色，说明z的的祖父g是黑色，且z的祖父g高度<=根的高度
-            //如果z的父亲p是黑色，那么p有可能是NIL
-            while (z.parent.color.equals(RED)) {
-                RedBlackTreeNode<T> p = z.parent;
-                RedBlackTreeNode<T> g = p.parent;
-                if (g.left.equals(p)) {
-                    if (g.right.color.equals(RED)) {
-                        p.color = BLACK;
-                        g.right.color = BLACK;
-                        g.color = RED;
-                        z = g;
-                    } else {
-                        if (z == p.right) {
-                            this.leftRotate(p);
-                            p = g.left;
-                            z = p.left;
-                        }
-                        g.color = RED;
-                        p.color = BLACK;
-                        this.rightRotate(g);
-                        //结束时需要修复根节点的引用
-                        if (p.parent == NIL) {
-                            this.root = p;
-                        }
-                    }
-                } else {
-                    if (g.left.color.equals(RED)) {
-                        p.color = BLACK;
-                        g.left.color = BLACK;
-                        g.color = RED;
-                        z = g;
-                    } else {
-                        if (z == p.left) {
-                            this.rightRotate(p);
-                            p = g.right;
-                            z = p.right;
-                        }
-                        g.color = RED;
-                        p.color = BLACK;
-                        this.leftRotate(g);
-                        //结束时需要修复根节点的引用
-                        if (p.parent == NIL) {
-                            this.root = p;
-                        }
-                    }
-                }
-            }
-            // don't forget
-            this.root.color = BLACK;
-        }
+    private void flipColor(RedBlackTreeNode<T> g){
+        g.color = RED;
+        g.left.color = BLACK;
+        g.right.color = BLACK;
     }
 
     private void leftRotate(RedBlackTreeNode<T> p) {
