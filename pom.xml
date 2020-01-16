@@ -11,6 +11,7 @@
     <modules>
         <module>DSAndAlgorithm</module>
         <module>JavaConcurrency</module>
+        <module>String</module>
     </modules>
 
     <properties>

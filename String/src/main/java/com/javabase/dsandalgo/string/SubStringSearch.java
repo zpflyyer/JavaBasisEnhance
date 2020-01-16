@@ -1,3 +1,5 @@
+package com.javabase.dsandalgo.string;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,18 +19,29 @@ public class SubStringSearch {
             }
             System.out.println("input key word:");
             String keyWord = reader.readLine();
+
             System.out.println("------------simple search result-------------");
             searcher.simpleSearch(text, keyWord);
+
             System.out.println("------------simple search result with text index rollback-------------");
             searcher.rollBackTextPointSearch(text, keyWord);
+
             System.out.println("------------KMP searching-------------");
             KMP kmp = new KMP(keyWord);
             highLightOutput(text, kmp.searching(text), keyWord.length());
+
+            System.out.println("------------Boyer Moore searching-------------");
+            BoyerMoore boyerMoore = new BoyerMoore(keyWord);
+            highLightOutput(text, boyerMoore.search(text), keyWord.length());
+
             System.out.println("=====================done======================");
 
         }
     }
 
+    /**
+     * 暴力法搜索
+     */
     public void simpleSearch(String text, String key) {
         int txtLen = text.length();
         int keyLen = key.length();
@@ -49,7 +62,7 @@ public class SubStringSearch {
     }
 
     /**
-     * 与 {@link #simpleSearch(String, String)}的区别在于：文本指针跟随者关键字指针一起移动，如果当前text index查找失败，则需要回退到开始的位置
+     * 与暴力法 {@link #simpleSearch(String, String)}的区别在于：文本指针跟随者关键字指针一起移动，如果当前text index查找失败，则需要回退到开始的位置
      */
     public void rollBackTextPointSearch(String text, String key) {
         int textLen = text.length();

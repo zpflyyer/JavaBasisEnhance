@@ -1,9 +1,14 @@
+package com.javabase.dsandalgo.string;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * KMP算法基于DFA，匹配失败时不需要回退文本：用DFA的视角来看子串查找算法
+ * KMP算法基于DFA，匹配失败时不需要回退文本
+ * 0：用DFA的视角来看子串查找算法
+ * 1：能够保证线性复杂度，但实际中相比不会比暴力法不会有明显优势：很少在重复性高的text里搜索重复性高的pat
+ * 3：适用于输入流长度不确定的情况：永远不需要回退
  */
 public class KMP {
 
