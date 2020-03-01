@@ -1,11 +1,15 @@
 package com.huadongmedia.infrastructure;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 public class MatrixChainOrder {
 
     private Map<Integer, Map<Integer, MinCostRecord>> len2Start2MinCost = new HashMap<>();
+
+    private Map<Integer, Map<Integer, MinCostRecord>> len2Start2MinCost1 = new HashMap<>();
 
     private int[] matrix;
 
@@ -19,9 +23,24 @@ public class MatrixChainOrder {
     public static void main(String[] args) {
         int[] matrixArray = {5, 10, 3, 12, 5, 50, 6};
         MatrixChainOrder matrixChainOrder = new MatrixChainOrder(matrixArray);
+        int oneSixSplit = matrixChainOrder.getMinCostTop2Down(1, 6);
+        int twoFiveSplit = matrixChainOrder.getMinCostTop2Down(2, 5);
+        int twoFourSplit = matrixChainOrder.getMinCostTop2Down(2, 4);
+        matrixChainOrder.printMinCost(matrixChainOrder.len2Start2MinCost1);
         String one2Six = matrixChainOrder.getMinCost(1, 6);
         String two2five = matrixChainOrder.getMinCost(2, 5);
         String two2Four = matrixChainOrder.getMinCost(2, 4);
+        matrixChainOrder.printMinCost(matrixChainOrder.len2Start2MinCost);
+    }
+
+    private void printMinCost(Map<Integer, Map<Integer, MinCostRecord>> len2Start2MinCost) {
+        len2Start2MinCost.forEach((len, map) -> {
+            PriorityQueue<ReadableMinCost> costPriorityQueue = new PriorityQueue<>(Comparator.comparingInt(ReadableMinCost::getLen).thenComparing(ReadableMinCost::getStart));
+            map.forEach((start, record) -> costPriorityQueue.add(new ReadableMinCost(start, start + len - 1, record.getSplitIdx(), record.getCost())));
+            while (!costPriorityQueue.isEmpty()) {
+                System.out.println(costPriorityQueue.remove());
+            }
+        });
     }
 
     public String getMinCost(int start, int end) {
@@ -49,6 +68,36 @@ public class MatrixChainOrder {
             rightStr = "(" + rightStr + ")";
         }
         return leftStr + "*" + rightStr;
+    }
+
+    public int getMinCostTop2Down(int start, int end) {
+        if (start > end) {
+            throw new IllegalStateException("开始不得大于结束");
+        }
+        if (start == end) {
+            return 0;
+        }
+        int len = end - start + 1;
+        Map<Integer, MinCostRecord> costMap = this.len2Start2MinCost1.get(len);
+        if (costMap == null || costMap.get(start) == null) {
+            int minCost = Integer.MAX_VALUE;
+            int idx = -1;
+            for (int splitIdx = start; splitIdx <= end - 1; splitIdx++) {
+                int cost = this.getMinCostTop2Down(start, splitIdx) + this.getMinCostTop2Down(splitIdx + 1, end) + matrix[start - 1] * matrix[splitIdx] * matrix[end];
+                if (cost < minCost) {
+                    minCost = cost;
+                    idx = splitIdx;
+                }
+            }
+            if (costMap == null) {
+                costMap = new HashMap<>();
+            }
+            costMap.put(start, new MinCostRecord(minCost, idx));
+            this.len2Start2MinCost1.put(len, costMap);
+            return minCost;
+        } else {
+            return this.len2Start2MinCost1.get(len).get(start).getCost();
+        }
     }
 
     private void calculateMinCost() {
