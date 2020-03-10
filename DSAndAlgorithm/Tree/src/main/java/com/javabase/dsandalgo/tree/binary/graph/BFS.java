@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 
 import java.util.*;
 
+// BFS得到的是以起始点s为圆心的同心圆：每个节点a处于以<s,a>的最短距离r为半径的圆环上
 public class BFS {
 
     public static void main(String[] args) {
