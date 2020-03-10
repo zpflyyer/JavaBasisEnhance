@@ -1,4 +1,4 @@
-package com.huadongmedia.infrastructure.deeptask;
+package com.javabase.dsandalgo.tree.binary.search;
 
 import java.util.Arrays;
 import java.util.List;

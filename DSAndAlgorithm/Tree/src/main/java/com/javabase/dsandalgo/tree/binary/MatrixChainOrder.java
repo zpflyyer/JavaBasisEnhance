@@ -1,4 +1,4 @@
-package com.huadongmedia.infrastructure;
+package com.javabase.dsandalgo.tree.binary;
 
 import java.util.Comparator;
 import java.util.HashMap;

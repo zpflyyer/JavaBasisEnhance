@@ -1,6 +1,4 @@
-package com.huadongmedia.infrastructure;
-
-import com.alibaba.fastjson.JSON;
+package com.javabase.dsandalgo.tree.binary;
 
 public class OptimalBST {
 
