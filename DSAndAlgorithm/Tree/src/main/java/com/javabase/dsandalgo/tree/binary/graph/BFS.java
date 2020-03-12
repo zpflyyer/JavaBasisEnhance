@@ -10,87 +10,75 @@ public class BFS {
     public static void main(String[] args) {
         Graph graph = new Graph(new Scanner(System.in));
 
-        QueueNode bfs = new QueueNode(0, 0);
-        PriorityQueue<QueueNode> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(QueueNode::getPriority));
-        priorityQueue.add(bfs);
-
-        for (int i = 1; i < graph.getV(); i++) {
-            priorityQueue.add(new QueueNode(i, Integer.MAX_VALUE));
+        Queue<BFSNode> priorityQueue = new LinkedList<>();
+        // 图的节点数组：便于标记
+        BFSNode[] bfsNodes = new BFSNode[graph.getV()];
+        for (int i = 0; i < bfsNodes.length; i++) {
+            bfsNodes[i] = new BFSNode(false, i, Integer.MAX_VALUE);
         }
+        //添加一个初始节点作为圆心，标记、入队
+        priorityQueue.add(bfsNodes[0].setMarked(true).setRadius(0));
 
+        // 入队标记，出队完成
         while (!priorityQueue.isEmpty()) {
-            QueueNode node = priorityQueue.remove();
+            BFSNode node = priorityQueue.remove();
             graph.getAdj()[node.vertex].keySet().forEach(vertex -> {
-                // 如果该邻接节点未被标记过: 标记之
-                priorityQueue.stream()
-                        .filter(v -> v.vertex == vertex && v.priority > node.priority + 1)
-                        .findFirst()
-                        .ifPresent(v -> {
-                            v.setPriority(node.priority + 1);
-                            node.getChildren().add(v);
-                            priorityQueue.add(priorityQueue.remove());
-                        });
+                // 如果该邻接节点未被标记过: 标记之并入队列，代表该节点已经被发现
+                BFSNode aja = bfsNodes[vertex];
+                if (!aja.isMarked()) {
+                    aja.setMarked(true);
+                    aja.setRadius(node.getRadius() + 1);
+                    priorityQueue.add(aja);
+                }
             });
         }
-        System.out.println(JSON.toJSONString(bfs));
+        System.out.println(JSON.toJSONString(bfsNodes));
     }
 
-    private static final class QueueNode {
+    private static final class BFSNode {
+        private boolean marked;
         private int vertex;
-        private int priority;
-        private List<QueueNode> children = new ArrayList<>();
+        private int radius;
 
-        public QueueNode(int v, int priority) {
-            this.vertex = v;
-            this.priority = priority;
+        public BFSNode(boolean marked, int vertex, int radius) {
+            this.marked = marked;
+            this.vertex = vertex;
+            this.radius = radius;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            QueueNode queueNode = (QueueNode) o;
-            return vertex == queueNode.vertex;
+        public boolean isMarked() {
+            return marked;
         }
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(vertex);
+        public BFSNode setMarked(boolean marked) {
+            this.marked = marked;
+            return this;
         }
 
         public int getVertex() {
             return vertex;
         }
 
-        public QueueNode setVertex(int vertex) {
+        public BFSNode setVertex(int vertex) {
             this.vertex = vertex;
             return this;
         }
 
-        public int getPriority() {
-            return priority;
+        public int getRadius() {
+            return radius;
         }
 
-        public QueueNode setPriority(int priority) {
-            this.priority = priority;
-            return this;
-        }
-
-        public List<QueueNode> getChildren() {
-            return children;
-        }
-
-        public QueueNode setChildren(List<QueueNode> children) {
-            this.children = children;
+        public BFSNode setRadius(int radius) {
+            this.radius = radius;
             return this;
         }
 
         @Override
         public String toString() {
-            return "QueueNode{" +
-                    "vertex=" + vertex +
-                    ", priority=" + priority +
-                    ", children=" + children +
+            return "BFSNode{" +
+                    "marked=" + marked +
+                    ", vertex=" + vertex +
+                    ", radius=" + radius +
                     '}';
         }
     }

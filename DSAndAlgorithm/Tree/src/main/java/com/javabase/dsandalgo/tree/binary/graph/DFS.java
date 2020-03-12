@@ -34,6 +34,7 @@ public class DFS {
         System.out.println(JSON.toJSONString(this.dfsNodes[0]));
     }
 
+    // 入调用栈标记，出调用栈完成
     private void dfsVisit(DFSNode node) {
         // 访问该节点
         node.setMarked(true);
@@ -41,11 +42,13 @@ public class DFS {
         node.setDiscover(++this.time);
 
         // 访问该节点的所有子节点
-        this.graph.getAdj()[node.getVertex()].keySet().stream()
-                .filter(vertex -> !dfsNodes[vertex].isMarked())
-                .forEach(unmarked -> {
-                    node.getChildren().add(dfsNodes[unmarked]);
-                    this.dfsVisit(dfsNodes[unmarked]);
+        this.graph.getAdj()[node.getVertex()].keySet()
+                .forEach(vertex -> {
+                    DFSNode aja = dfsNodes[vertex];
+                    if (!aja.isMarked()) {
+                        node.getChildren().add(dfsNodes[vertex]);
+                        this.dfsVisit(dfsNodes[vertex]);
+                    }
                 });
 
         node.setFinish(++this.time);
