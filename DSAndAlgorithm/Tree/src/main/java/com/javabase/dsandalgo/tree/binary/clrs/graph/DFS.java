@@ -1,4 +1,4 @@
-package com.javabase.dsandalgo.tree.binary.graph;
+package com.javabase.dsandalgo.tree.binary.clrs.graph;
 
 import com.alibaba.fastjson.JSON;
 
