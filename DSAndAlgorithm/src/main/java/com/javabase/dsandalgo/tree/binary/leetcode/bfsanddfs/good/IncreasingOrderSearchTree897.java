@@ -1,4 +1,4 @@
-package com.javabase.dsandalgo.tree.binary.leetcode.bfsanddfs;
+package com.javabase.dsandalgo.tree.binary.leetcode.bfsanddfs.good;
 
 import com.javabase.dsandalgo.tree.binary.common.TreeNode;
 
@@ -17,7 +17,7 @@ public class IncreasingOrderSearchTree897 {
 
     /**
      * @param root 一棵子树
-     * @param next 中序遍历里，以root为根的子树的后继节点
+     * @param next 中序遍历里，以root为根的子树的后继节点，遍历过程中，对root整棵树都有意义
      * @return 顺序化后的新树的根节点
      */
     // 右链，递增

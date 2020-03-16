@@ -1,4 +1,4 @@
-package com.javabase.dsandalgo.tree.binary.leetcode.bst;
+package com.javabase.dsandalgo.tree.binary.leetcode.bfsanddfs.good;
 
 import com.alibaba.fastjson.JSON;
 import com.javabase.dsandalgo.tree.binary.common.TreeNode;
@@ -18,12 +18,17 @@ public class BinarySearchTreeToGreaterSumTree1038 {
         return root;
     }
 
+    /**
+     * @param sum root作为一颗"左子树"时，其"父亲节点及其右兄弟树上所有节点"的和
+     */
     private int inverseInOrder(TreeNode root, int sum) {
+        // 拼接边界
         if (root == null) {
             return sum;
         }
         int rightSum = this.inverseInOrder(root.right, sum);
         root.val = root.val + rightSum;
+
         return this.inverseInOrder(root.left, root.val);
     }
 
