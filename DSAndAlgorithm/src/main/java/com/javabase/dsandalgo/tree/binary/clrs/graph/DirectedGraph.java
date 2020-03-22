@@ -14,8 +14,10 @@ public class DirectedGraph {
 
     public static void main(String[] args) {
         DirectedGraph graph = new DirectedGraph(new Scanner(System.in));
-        String[] result = graph.topologicalSort();
+        String[] result = graph.topologicalSort0();
         System.out.println(Arrays.toString(result));
+        String[] result1 = graph.topologicalSort();
+        System.out.println(Arrays.toString(result1));
     }
 
     public DirectedGraph(Scanner sc) {
@@ -31,9 +33,33 @@ public class DirectedGraph {
             int from = sc.nextInt();
             int to = sc.nextInt();
             edges.get(from).add(to);
+            this.vertices[to].inDegree++;
+            this.vertices[from].outDegree++;
         }
     }
 
+    // degree based
+    private String[] topologicalSort0() {
+        String[] result = new String[this.vertices.length];
+        Queue<Vertex> queue = new PriorityQueue<>(Comparator.comparingInt(Vertex::getInDegree));
+        queue.addAll(Arrays.asList(this.vertices));
+        int i = 0;
+        while (!queue.isEmpty()) {
+            Vertex vertex = queue.remove();
+            if (vertex.inDegree > 0) {
+                throw new IllegalStateException("cant do topological sort since at least one circle is detected!");
+            }
+            for (Integer v : this.edges.get(vertex.vertex)) {
+                this.vertices[v].inDegree--;
+            }
+            result[i++] = vertex.getAlias();
+        }
+
+        return result;
+    }
+
+
+    // dfs based
     private String[] topologicalSort() {
         this.dfs();
         String[] result = new String[this.vertices.length];
@@ -73,6 +99,9 @@ public class DirectedGraph {
         private int find;
         private int finish;
 
+        private int inDegree;
+        private int outDegree;
+
         public Vertex(int vertex, String alias) {
             this.vertex = vertex;
             this.alias = alias;
@@ -97,6 +126,10 @@ public class DirectedGraph {
 
         public String getAlias() {
             return alias;
+        }
+
+        public int getInDegree() {
+            return inDegree;
         }
     }
 }
