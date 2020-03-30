@@ -44,4 +44,24 @@ public class MaxConsecutiveOnesIII1004 {
         }
         return maxLen;
     }
+
+    /**
+     * 不平衡则定长右移，再次平衡则可能增大
+     */
+    public int longestOnes0(int[] A, int K) {
+        int i = 0, j;
+        // j永远右移
+        for (j = 0; j < A.length; j++) {
+            // 始终记录当前窗口可用的替换元个数
+            if (A[j] == 0) {
+                K--;
+            }
+            // 如果K<0,则i++,意味着一旦遇到最长窗口,能够保持下去
+            // 如果K>=0,则i不变。
+            if (K < 0 && A[i++] == 0) {
+                K++;
+            }
+        }
+        return j - i;
+    }
 }
