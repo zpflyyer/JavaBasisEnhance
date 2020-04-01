@@ -8,10 +8,10 @@ import java.util.Queue;
 public class GrumpyBookstoreOwner1052 {
 
     public static void main(String[] args) {
-        int[] customer = {9, 10, 4, 5};
-        int[] grumpy = {1, 0, 1, 1};
+        int[] customer = {5, 8};
+        int[] grumpy = {0, 1};
         GrumpyBookstoreOwner1052 grumpyBookstoreOwner1052 = new GrumpyBookstoreOwner1052();
-        System.out.println(grumpyBookstoreOwner1052.maxSatisfied(customer, grumpy, 1));
+        System.out.println(grumpyBookstoreOwner1052.maxSatisfied0(customer, grumpy, 1));
     }
 
     public int maxSatisfied(int[] customers, int[] grumpy, int X) {
@@ -46,6 +46,32 @@ public class GrumpyBookstoreOwner1052 {
             }
         }
 
+        return result;
+    }
+
+    public int maxSatisfied0(int[] customers, int[] grumpy, int X) {
+        int maxUnsatisfied = 0;
+        int idx = 0;
+        int j = 0;
+        int curUnsatisfied = 0;
+        for (int i = 0; i < customers.length; i++) {
+            if (grumpy[i] == 1) {
+                curUnsatisfied += customers[i];
+            }
+            if (i - j == X && grumpy[j++] == 1) {
+                curUnsatisfied -= customers[j - 1];
+            }
+            if (curUnsatisfied > maxUnsatisfied) {
+                maxUnsatisfied = curUnsatisfied;
+                idx = i;
+            }
+        }
+        int result = 0;
+        for (int i = 0; i < customers.length; i++) {
+            if (grumpy[i] == 0 || idx - X + 1 <= i && i <= idx) {
+                result += customers[i];
+            }
+        }
         return result;
     }
 }
