@@ -1,7 +1,9 @@
 package com.javabase.dsandalgo.tree.binary.leetcode.array.medium;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class CombinationSumIII216 {
 
@@ -14,7 +16,8 @@ public class CombinationSumIII216 {
         List<List<Integer>> results = new ArrayList<>();
         // make sure there is at least 1 combination with n unique numbers which sum up to n
         if (1 <= k && k <= 9 && (1 + k) * k / 2 <= n && n <= (19 - k) * k / 2) {
-            this.combinationSum(results, new ArrayList<>(), k, n);
+//            this.combinationSum(results, new ArrayList<>(), k, n);
+            return this.bfs(k, n);
         }
         return results;
     }
@@ -34,5 +37,33 @@ public class CombinationSumIII216 {
             tmp.add(i);
             this.combinationSum(results, tmp, k - 1, n - i);
         }
+    }
+
+    private List<List<Integer>> bfs(int k, int n) {
+        Queue<List<Integer>> queue = new LinkedList<>();
+        for (int i = 1; i <= Math.min(9, n); i++) {
+            List<Integer> list = new ArrayList<>();
+            list.add(i);
+            queue.add(list);
+        }
+
+        List<List<Integer>> res = new ArrayList<>();
+        while (!queue.isEmpty()) {
+            List<Integer> list = queue.remove();
+            int sum = list.stream().mapToInt(Integer::intValue).sum();
+            if (sum == n && list.size() == k) {
+                res.add(list);
+            } else {
+                Integer tail = list.get(list.size() - 1);
+                for (int i = tail + 1; i <= 9; i++) {
+                    if (i + sum <= n) {
+                        List<Integer> list1 = new ArrayList<>(list);
+                        list1.add(i);
+                        queue.add(list1);
+                    }
+                }
+            }
+        }
+        return res;
     }
 }
